@@ -83,17 +83,28 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
-      }),
-  );
-  return (
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
+  }));
+  
+  // Check if we are running in a TanStack Start / SSR environment
+  const isSSR = typeof window === 'undefined' || (window as any).__TSR_DEHYDRATED__;
+
+  const content = (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
       </AuthProvider>
     </QueryClientProvider>
   );
+
+  if (isSSR) {
+    return (
+      <RootShell>
+        {content}
+      </RootShell>
+    );
+  }
+
+  return content;
 }
