@@ -10,9 +10,13 @@ function createSupabaseClient() {
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    throw new Error(
+    console.error(
       "Missing Supabase environment variables. Ensure SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY (or VITE_ prefixed versions) are set in your .env file.",
     );
+    // Return a dummy client to prevent immediate crashes
+    return createClient<Database>("https://placeholder.supabase.co", "placeholder", {
+      auth: { persistSession: false },
+    });
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
